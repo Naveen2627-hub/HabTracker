@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base
-from models import User, UserCreate
+from models import User, UserCreate, Goal, GoalCreate
 import hashlib
 
 
@@ -38,3 +38,17 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
     return db_user
+
+@app.post("/users/{user_id}/goals/")
+def create_goal(user_id: int, goal: GoalCreate, db:Session = Depends(get_db)):
+    db_goal= Goal(
+        goal_name=goal.goal_name, 
+        description=goal.description, 
+        user_id=user_id
+        )
+    db.add(db_goal)
+    db.commit()
+    db.refresh(db_goal)
+
+    return db_goal
+
